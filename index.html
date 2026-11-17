@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Codex Heroica — Персонажи D&D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  :root{
+    --bg:#0b0912;
+    --panel:rgba(255,255,255,.035);
+    --panel-2:rgba(255,255,255,.07);
+    --border:rgba(255,255,255,.09);
+    --border-strong:rgba(224,185,90,.35);
+    --gold:#e0b95a;
+    --gold-dim:#a8862f;
+    --accent:#8b5cf6;
+    --accent-2:#c084fc;
+    --text:#ece8f5;
+    --muted:#9a94b0;
+    --danger:#ef4444;
+    --radius:16px;
+    --shadow:0 20px 60px rgba(0,0,0,.45);
+    --bg-blur:0px;
+    --bg-dim:0.45;
+  }
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+    min-height:100vh;-webkit-font-smoothing:antialiased;transition:background .3s;
+  }
+  body:not(.custom-bg){
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(139,92,246,.18), transparent 60%),
+      radial-gradient(1000px 500px at 90% 0%, rgba(224,185,90,.10), transparent 55%),
+      radial-gradient(800px 600px at 50% 120%, rgba(139,92,246,.10), transparent 60%),
+      var(--bg);
+    background-attachment:fixed;
+  }
+  .bg-layer{
+    position:fixed;inset:-40px;z-index:-2;
+    background-size:cover;background-position:center;background-repeat:no-repeat;
+    filter:blur(var(--bg-blur));transform:scale(1.02);
+    transition:filter .35s, background-image .35s, background-color .35s;pointer-events:none;
+  }
+  .bg-dim{
+    position:fixed;inset:0;z-index:-1;
+    background:rgba(11,9,18,var(--bg-dim));
+    pointer-events:none;transition:background .35s;
+  }
+  /* TOPBAR */
+  .topbar{
+    position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;
+    gap:16px;padding:14px 28px;background:rgba(11,9,18,.72);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border);
+  }
+  .brand{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;}
+  .brand-mark{font-size:22px;color:var(--gold);filter:drop-shadow(0 0 8px rgba(224,185,90,.5));}
+  .brand-name{font-family:'Cinzel',serif;font-size:19px;letter-spacing:.06em;}
+  .brand-name em{color:var(--gold);font-style:normal;}
+  .topnav{display:flex;gap:8px;align-items:center;}
+  /* BUTTONS */
+  .btn{
+    font-family:inherit;font-size:14px;font-weight:600;padding:10px 18px;border-radius:12px;
+    border:1px solid var(--border);background:var(--panel);color:var(--text);cursor:pointer;
+    transition:background .2s,border-color .2s,transform .15s,box-shadow .2s;white-space:nowrap;
+  }
+  .btn:hover{background:var(--panel-2);border-color:rgba(255,255,255,.18);transform:translateY(-1px);}
+  .btn:active{transform:translateY(0);}
+  .btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+  .btn-primary{background:linear-gradient(135deg,#8b5cf6,#6d28d9);border-color:transparent;color:#fff;box-shadow:0 8px 24px rgba(139,92,246,.35);}
+  .btn-primary:hover{box-shadow:0 10px 32px rgba(139,92,246,.55);}
+  .btn-gold{background:linear-gradient(135deg,#e8c774,#b8862f);color:#1a1030;border-color:transparent;font-weight:700;box-shadow:0 8px 24px rgba(224,185,90,.3);}
+  .btn-gold:hover{box-shadow:0 10px 32px rgba(224,185,90,.5);}
+  .btn-ghost{background:transparent;}
+  .icon-btn{
+    width:36px;height:36px;flex-shrink:0;border-radius:10px;border:1px solid var(--border);
+    background:rgba(0,0,0,.25);color:var(--muted);cursor:pointer;font-size:14px;line-height:1;
+    transition:.2s;display:grid;place-items:center;font-family:inherit;
+  }
+  .icon-btn:hover{color:#fff;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2);}
+  .icon-btn.danger:hover{background:rgba(239,68,68,.18);border-color:rgba(239,68,68,.5);color:#fca5a5;}
+  /* LAYOUT */
+  #main{max-width:1200px;margin:0 auto;padding:40px 24px 90px;}
+  /* ГЛАВНОЕ МЕНЮ */
+  .game-menu{
+    min-height:calc(100vh - 130px);display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:40px 20px 80px;position:relative;
+  }
+  .game-menu .menu-title{
+    font-family:'Cinzel',serif;font-size:clamp(40px,9vw,86px);letter-spacing:.08em;margin:0 0 6px;text-align:center;
+    background:linear-gradient(180deg,#fff,#e8c774 40%,#8b5cf6);-webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 0 30px rgba(139,92,246,.35));animation:menuIn .8s ease both;
+  }
+  .game-menu .menu-sub{
+    color:var(--muted);letter-spacing:.38em;text-transform:uppercase;font-size:11px;margin:0 0 52px;text-align:center;
+    animation:menuIn .8s ease .1s both;
+  }
+  .menu-list{display:flex;flex-direction:column;gap:10px;width:min(460px,100%);}
+  .menu-item{
+    position:relative;display:flex;align-items:center;gap:18px;width:100%;padding:20px 26px;
+    background:linear-gradient(90deg,rgba(255,255,255,.04),rgba(255,255,255,.01));
+    border:1px solid var(--border);border-radius:14px;color:var(--text);cursor:pointer;
+    font-family:'Cinzel',serif;font-size:clamp(17px,2.4vw,22px);letter-spacing:.06em;text-align:left;
+    transition:.25s;overflow:hidden;animation:menuIn .7s ease both;
+  }
+  .menu-item:nth-child(1){animation-delay:.15s}
+  .menu-item:nth-child(2){animation-delay:.24s}
+  .menu-item:nth-child(3){animation-delay:.33s}
+  .menu-item:nth-child(4){animation-delay:.42s}
+  .menu-item:nth-child(5){animation-delay:.51s}
+  .menu-item::before{
+    content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+    background:linear-gradient(180deg,var(--gold),var(--accent));transform:scaleY(0);transition:transform .25s;
+  }
+  .menu-item:hover{
+    background:linear-gradient(90deg,rgba(139,92,246,.16),rgba(224,185,90,.06));
+    border-color:var(--border-strong);transform:translateX(6px);box-shadow:0 10px 40px rgba(0,0,0,.4);
+  }
+  .menu-item:hover::before{transform:scaleY(1);}
+  .menu-item .mi-icon{font-size:22px;filter:drop-shadow(0 0 10px rgba(224,185,90,.5));}
+  .menu-item .mi-arrow{margin-left:auto;color:var(--muted);font-size:20px;transition:.25s;}
+  .menu-item:hover .mi-arrow{color:var(--gold);transform:translateX(4px);}
+  .menu-item .mi-desc{
+    display:block;font-family:'Inter',sans-serif;font-size:12px;letter-spacing:.02em;
+    color:var(--muted);margin-top:3px;font-weight:400;
+  }
+  @keyframes menuIn{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+  .menu-footer{
+    margin-top:46px;color:#5f5a75;font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;
+    animation:menuIn .8s ease .6s both;
+  }
+  /* PAGE HEAD */
+  .page-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:26px;flex-wrap:wrap;}
+  .page-title{font-family:'Cinzel',serif;font-size:26px;margin:0;letter-spacing:.03em;}
+  /* CARDS */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;}
+  .char-card{
+    position:relative;padding:20px;border-radius:var(--radius);
+    background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.02));
+    border:1px solid var(--border);cursor:pointer;
+    transition:transform .25s,border-color .25s,box-shadow .25s;overflow:hidden;backdrop-filter:blur(8px);
+  }
+  .char-card::before{
+    content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+    background:radial-gradient(420px 200px at 100% 0%,rgba(139,92,246,.20),transparent 70%);
+    opacity:0;transition:opacity .3s;
+  }
+  .char-card:hover{transform:translateY(-4px);border-color:var(--border-strong);box-shadow:var(--shadow);}
+  .char-card:hover::before{opacity:1;}
+  .card-top{display:flex;gap:14px;align-items:flex-start;position:relative;}
+  .card-info{flex:1;min-width:0;}
+  .card-info h3{font-family:'Cinzel',serif;font-size:19px;margin:0 0 5px;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .card-info p{margin:0;font-size:12.5px;color:var(--muted);}
+  .card-actions{display:flex;gap:6px;opacity:0;transition:opacity .2s;}
+  .char-card:hover .card-actions{opacity:1;}
+  .avatar{
+    width:52px;height:52px;border-radius:14px;display:grid;place-items:center;
+    font-family:'Cinzel',serif;font-size:22px;font-weight:700;color:#1a1030;
+    background:linear-gradient(135deg,#e8c774,#b8862f);box-shadow:0 6px 18px rgba(224,185,90,.28);flex-shrink:0;
+  }
+  .mini-stats{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:16px;position:relative;}
+  .mini-stat{text-align:center;background:rgba(0,0,0,.28);border:1px solid var(--border);border-radius:9px;padding:7px 2px;}
+  .mini-stat b{display:block;font-size:14px;color:var(--gold);line-height:1.2;}
+  .mini-stat span{font-size:9px;color:var(--muted);letter-spacing:.08em;}
+  .empty{
+    grid-column:1/-1;text-align:center;padding:70px 20px;
+    border:1px dashed rgba(255,255,255,.14);border-radius:var(--radius);backdrop-filter:blur(6px);
+  }
+  .empty-emoji{font-size:42px;margin:0 0 12px;}
+  /* FORM */
+  .form-grid{display:grid;gap:20px;}
+  .section{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:22px;backdrop-filter:blur(8px);}
+  .section h2{
+    font-family:'Cinzel',serif;font-size:15px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--gold);margin:0 0 18px;display:flex;align-items:center;gap:14px;font-weight:600;
+  }
+  .section h2::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent);}
+  .fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;}
+  .field{display:flex;flex-direction:column;gap:7px;}
+  .field label{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;}
+  input,select,textarea{
+    font-family:inherit;font-size:14px;color:var(--text);background:rgba(0,0,0,.3);
+    border:1px solid var(--border);border-radius:10px;padding:11px 13px;outline:none;width:100%;
+    transition:border-color .2s,box-shadow .2s,background .2s;
+  }
+  input::placeholder,textarea::placeholder{color:#5f5a75;}
+  input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(139,92,246,.18);background:rgba(0,0,0,.42);}
+  textarea{resize:vertical;min-height:100px;line-height:1.6;}
+  select{
+    appearance:none;-webkit-appearance:none;cursor:pointer;
+    background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%239a94b0' stroke-width='2' stroke-linecap='round' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 14px center;padding-right:38px;
+  }
+  option{background:#14101f;color:var(--text);}
+  input[type=range]{
+    accent-color:var(--gold);padding:0;height:28px;width:100%;
+    background:transparent;border:none;box-shadow:none;cursor:pointer;
+  }
+  input[type=range]:focus{box-shadow:none;background:transparent;}
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:12px;}
+  .stat-input{
+    background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:12px;
+    padding:14px 10px 10px;text-align:center;transition:border-color .2s;
+    display:flex;flex-direction:column;align-items:center;gap:2px;
+  }
+  .stat-input:focus-within{border-color:var(--gold);}
+  .stat-input label{display:block;font-size:10px;letter-spacing:.12em;color:var(--muted);margin-bottom:4px;font-weight:700;text-transform:uppercase;}
+  .stat-input .stat-val{
+    font-family:'Cinzel',serif;font-size:27px;font-weight:700;color:var(--gold);line-height:1.15;
+    min-width:44px;user-select:none;
+  }
+  .stat-input .mod{font-size:12px;color:var(--accent-2);font-weight:700;margin-bottom:6px;}
+  .stat-input input[type=range]{margin-top:auto;}
+  .lvl-field-wrap{
+    background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:12px;padding:12px 14px 10px;
+  }
+  .lvl-field-wrap .lvl-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+  .lvl-field-wrap .lvl-head .lvl-name{font-size:10px;letter-spacing:.12em;color:var(--muted);font-weight:700;text-transform:uppercase;}
+  .lvl-field-wrap .lvl-head .lvl-num{font-family:'Cinzel',serif;font-size:22px;font-weight:700;color:var(--gold);}
+  .skills-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:8px;}
+  .skill{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(0,0,0,.22);border:1px solid var(--border);cursor:pointer;transition:.18s;font-size:13.5px;user-select:none;}
+  .skill:hover{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.05);}
+  .skill input{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;margin:0;}
+  .skill .sk-stat{margin-left:auto;color:var(--muted);font-size:10px;letter-spacing:.08em;font-weight:700;}
+  .dyn-row{display:flex;gap:8px;margin-bottom:8px;}
+  .dyn-row input{flex:1;}
+  .trait-block{background:rgba(0,0,0,.22);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;}
+  .trait-block .head{display:flex;gap:8px;margin-bottom:8px;}
+  .trait-block .head input{flex:1;}
+  .trait-block textarea{min-height:70px;font-size:13px;}
+  .add-btn{
+    display:inline-flex;align-items:center;gap:8px;padding:9px 15px;border-radius:10px;
+    border:1px dashed rgba(255,255,255,.18);background:transparent;color:var(--muted);
+    cursor:pointer;font-size:13px;font-family:inherit;font-weight:600;transition:.2s;
+  }
+  .add-btn:hover{color:var(--gold);border-color:var(--border-strong);background:rgba(224,185,90,.06);}
+  .form-actions{display:flex;gap:12px;justify-content:flex-end;padding-top:4px;}
+  /* CHARACTER VIEW */
+  .char-header{
+    display:flex;gap:22px;align-items:center;padding:26px;border-radius:var(--radius);
+    background:linear-gradient(135deg,rgba(139,92,246,.16),rgba(224,185,90,.08));
+    border:1px solid var(--border-strong);margin-bottom:20px;position:relative;overflow:hidden;backdrop-filter:blur(10px);
+  }
+  .char-header::after{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(600px 260px at 90% -20%,rgba(224,185,90,.16),transparent 70%);}
+  .char-header .avatar{width:78px;height:78px;font-size:33px;border-radius:20px;}
+  .char-header h1{font-family:'Cinzel',serif;font-size:clamp(24px,4vw,34px);margin:0 0 10px;letter-spacing:.02em;line-height:1.15;}
+  .char-meta{display:flex;flex-wrap:wrap;gap:8px;position:relative;}
+  .chip{padding:5px 13px;border-radius:999px;font-size:12px;font-weight:600;background:rgba(0,0,0,.3);border:1px solid var(--border);color:#d8d3e6;}
+  .chip.gold{color:var(--gold);border-color:rgba(224,185,90,.4);background:rgba(224,185,90,.09);}
+  .stat-display{display:grid;grid-template-columns:repeat(auto-fit,minmax(108px,1fr));gap:12px;}
+  .stat-hex{text-align:center;padding:16px 8px 14px;border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(0,0,0,.28));border:1px solid var(--border);transition:.2s;}
+  .stat-hex:hover{border-color:var(--border-strong);transform:translateY(-2px);}
+  .stat-hex .lbl{font-size:10px;letter-spacing:.14em;color:var(--muted);font-weight:700;}
+  .stat-hex .val{font-family:'Cinzel',serif;font-size:29px;color:var(--gold);line-height:1.1;margin:5px 0;}
+  .stat-hex .md{font-size:12px;color:var(--accent-2);font-weight:700;}
+  .prose{color:#cfcae0;line-height:1.72;font-size:14.5px;white-space:pre-wrap;margin:0;}
+  .empty-note{color:#6f6989;font-style:italic;font-size:14px;margin:0;}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;}
+  .equip-list{margin:0;padding-left:20px;color:#cfcae0;line-height:1.95;font-size:14.5px;}
+  .equip-list li::marker{color:var(--gold);}
+  .trait-card{padding:14px 16px;border-radius:12px;background:rgba(0,0,0,.24);border:1px solid var(--border);margin-bottom:10px;}
+  .trait-card:last-child{margin-bottom:0;}
+  .trait-card h4{margin:0 0 7px;font-size:15px;color:var(--gold);font-family:'Cinzel',serif;letter-spacing:.03em;font-weight:600;}
+  .trait-card p{font-size:13.5px;}
+  /* STORY / WORLDS */
+  .record-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px;}
+  .record-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;backdrop-filter:blur(8px);position:relative;transition:.22s;}
+  .record-card:hover{border-color:var(--border-strong);transform:translateY(-2px);}
+  .record-card h3{font-family:'Cinzel',serif;font-size:17px;margin:0 0 8px;color:var(--gold);letter-spacing:.02em;padding-right:64px;line-height:1.3;}
+  .record-card p{font-size:13.5px;color:#cfcae0;line-height:1.65;margin:0;white-space:pre-wrap;}
+  .record-card .rc-actions{position:absolute;top:14px;right:14px;display:flex;gap:6px;}
+  .record-date{font-size:10.5px;letter-spacing:.1em;color:#6f6989;text-transform:uppercase;margin-top:12px;}
+  /* MASTER MODE */
+  .dm-badge{
+    display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;
+    font-size:12px;font-weight:700;color:#1a1030;background:linear-gradient(135deg,#e8c774,#b8862f);
+  }
+  .dice-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:10px;}
+  .dice-btn{padding:14px 8px;border-radius:12px;border:1px solid var(--border);background:rgba(0,0,0,.28);color:var(--text);cursor:pointer;font-family:'Cinzel',serif;font-size:16px;transition:.2s;}
+  .dice-btn:hover{border-color:var(--border-strong);background:rgba(224,185,90,.08);transform:translateY(-2px);}
+  .roll-result{font-family:'Cinzel',serif;font-size:34px;color:var(--gold);text-align:center;min-height:46px;margin:14px 0 6px;}
+  .roll-log{list-style:none;margin:0;padding:0;font-size:13px;color:#cfcae0;max-height:220px;overflow-y:auto;}
+  .roll-log li{display:flex;justify-content:space-between;padding:7px 10px;border-bottom:1px solid rgba(255,255,255,.05);}
+  .dm-table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  .dm-table th{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);}
+  .dm-table td{padding:10px;border-bottom:1px solid rgba(255,255,255,.05);color:#cfcae0;}
+  .dm-table tbody tr{cursor:pointer;transition:.15s;}
+  .dm-table tbody tr:hover{background:rgba(139,92,246,.08);}
+  /* ОБМЕН ПЕРСОНАЖАМИ */
+  .export-code{
+    font-family:monospace;font-size:11.5px;min-height:110px;max-height:180px;
+    word-break:break-all;line-height:1.5;background:rgba(0,0,0,.42);
+  }
+  .auth-status{margin-top:12px;font-size:13px;min-height:18px;}
+  .auth-status.ok{color:#4ade80;}
+  .auth-status.err{color:#fca5a5;}
+  /* MODAL */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(5,3,10,.78);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    display:grid;place-items:center;padding:20px;z-index:100;animation:fade .2s ease;overflow-y:auto;
+  }
+  .modal{
+    width:min(540px,100%);max-height:90vh;overflow-y:auto;background:linear-gradient(180deg,#1a1428,#100c1b);
+    border:1px solid var(--border-strong);border-radius:20px;padding:26px;box-shadow:var(--shadow);animation:pop .25s ease;
+  }
+  .modal-title{font-family:'Cinzel',serif;font-size:22px;margin:0 0 6px;color:var(--gold);letter-spacing:.03em;}
+  .modal-sub{color:var(--muted);font-size:14px;margin:0 0 22px;line-height:1.5;}
+  .modal-label{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0 0 10px;}
+  .lvl-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:22px;}
+  .lvl-stat{padding:14px 8px;border-radius:12px;border:1px solid var(--border);background:rgba(0,0,0,.28);cursor:pointer;transition:.18s;color:var(--text);font-family:inherit;}
+  .lvl-stat:hover{border-color:rgba(255,255,255,.22);background:rgba(255,255,255,.05);}
+  .lvl-stat.selected{background:rgba(139,92,246,.2);border-color:var(--accent);box-shadow:0 0 0 3px rgba(139,92,246,.18);}
+  .lvl-stat:disabled{opacity:.4;cursor:not-allowed;}
+  .lvl-stat b{display:block;font-size:10.5px;letter-spacing:.1em;color:var(--muted);margin-bottom:5px;}
+  .lvl-stat.selected b{color:var(--accent-2);}
+  .lvl-stat span{font-family:'Cinzel',serif;font-size:21px;color:var(--gold);}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:22px;flex-wrap:wrap;}
+  /* BG PRESETS */
+  .bg-presets{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:4px;}
+  .bg-preset{aspect-ratio:1;border-radius:10px;border:1px solid var(--border);cursor:pointer;transition:.2s;background-size:cover;background-position:center;padding:0;}
+  .bg-preset:hover{border-color:var(--gold);transform:scale(1.05);box-shadow:0 4px 16px rgba(0,0,0,.4);}
+  /* TOAST */
+  .toast{
+    position:fixed;bottom:28px;left:50%;transform:translate(-50%,22px);opacity:0;
+    background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;padding:13px 24px;border-radius:12px;
+    font-size:14px;font-weight:600;box-shadow:0 12px 40px rgba(139,92,246,.5);z-index:200;
+    transition:opacity .3s,transform .3s;pointer-events:none;max-width:90vw;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0);}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  @keyframes pop{from{transform:scale(.94);opacity:0}to{transform:scale(1);opacity:1}}
+  /* RESPONSIVE */
+  @media (max-width:900px){.card-actions{opacity:1;}}
+  @media (max-width:640px){
+    .topbar{padding:12px 14px;gap:8px;}
+    .topnav{gap:6px;}
+    .topnav .btn{padding:8px 10px;font-size:12.5px;}
+    .topnav .btn .lbl-long{display:none;}
+    #main{padding:26px 14px 70px;}
+    .brand-name{font-size:15px;}
+    .char-header{flex-direction:column;text-align:center;align-items:center;padding:22px 16px;}
+    .char-meta{justify-content:center;}
+    .section{padding:18px 16px;}
+    .form-actions{flex-direction:column-reverse;}
+    .form-actions .btn{width:100%;}
+    .page-head{flex-direction:column;align-items:stretch;}
+    .page-head .btn{width:100%;}
+    .lvl-stats{grid-template-columns:repeat(2,1fr);}
+    .bg-presets{grid-template-columns:repeat(4,1fr);}
+    .dm-table th:nth-child(2),.dm-table td:nth-child(2),
+    .dm-table th:nth-child(5),.dm-table td:nth-child(5){display:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-layer" id="bg-layer"></div>
+<div class="bg-dim" id="bg-dim"></div>
+
+<header class="topbar">
+  <div class="brand" onclick="goHome()">
+    <span class="brand-mark">⚔</span>
+    <span class="brand-name">Codex <em>Heroica</em></span>
+  </div>
+  <nav class="topnav">
+    <span class="dm-badge" id="dm-badge" style="display:none">👑 Мастер</span>
+    <button class="btn btn-ghost" onclick="goHome()">Меню</button>
+    <button class="btn btn-ghost" onclick="openBgSettings()" title="Сменить фон">🎨</button>
+    <button class="btn btn-ghost" onclick="openMasterGate()" title="Режим мастера">👑</button>
+    <button class="btn btn-primary" onclick="goForm()">＋ <span class="lbl-long">Герой</span></button>
+  </nav>
+</header>
+
+<main id="main"></main>
+
+<div id="modal-root"></div>
+
+<script>
+/* ============================================================
+   КОНСТАНТЫ
+   ============================================================ */
+const STORAGE_KEY = 'codex_heroica_v1';
+const BG_KEY = 'codex_heroica_bg_v1';
+const STORY_KEY = 'codex_heroica_story_v1';
+const WORLDS_KEY = 'codex_heroica_worlds_v1';
+const DM_CODE_KEY = 'codex_heroica_dm_code_v1';
+const EXPORT_PREFIX = 'CH1:';
+
+const STATS = [
+  { k:'str', short:'СИЛ', full:'Сила' },
+  { k:'dex', short:'ЛОВ', full:'Ловкость' },
+  { k:'con', short:'ТЕЛ', full:'Телосложение' },
+  { k:'int', short:'ИНТ', full:'Интеллект' },
+  { k:'wis', short:'МДР', full:'Мудрость' },
+  { k:'cha', short:'ХАР', full:'Харизма' }
+];
+
+/* Лимиты характеристик по правилам D&D 5e:
+   обычный потолок — 20, максимум с магией и чертами — 30 */
+const STAT_MIN = 1;
+const STAT_MAX = 30;
+const LEVEL_MIN = 1;
+const LEVEL_MAX = 20;
+
+const SKILLS = [
+  { n:'Акробатика', s:'dex' }, { n:'Атлетика', s:'str' }, { n:'Восприятие', s:'wis' },
+  { n:'Выживание', s:'wis' }, { n:'Выступление', s:'cha' }, { n:'Запугивание', s:'cha' },
+  { n:'История', s:'int' }, { n:'Магия', s:'int' }, { n:'Медицина', s:'wis' },
+  { n:'Обман', s:'cha' }, { n:'Обращение с животными', s:'wis' }, { n:'Природа', s:'int' },
+  { n:'Проницательность', s:'wis' }, { n:'Расследование', s:'int' }, { n:'Религия', s:'int' },
+  { n:'Скрытность', s:'dex' }, { n:'Убеждение', s:'cha' }, { n:'Ловкость рук', s:'dex' }
+];
+
+const RACES = ['Человек','Эльф','Полуэльф','Дварф','Полурослик','Гном','Орк','Полуорк','Тифлинг','Драконорождённый','Аасимар','Голиаф','Кенку','Табакси','Другой'];
+const CLASSES = ['Воин','Варвар','Паладин','Следопыт','Плут','Бард','Монах','Друид','Клирик','Волшебник','Колдун','Чародей','Изобретатель','Другой'];
+const ALIGNMENTS = ['Законно-добрый','Нейтрально-добрый','Хаотично-добрый','Законно-нейтральный','Нейтральный','Хаотично-нейтральный','Законно-злой','Нейтрально-злой','Хаотично-злой'];
+
+const BG_GRADIENTS = [
+  { name:'Пурпур', grad:'linear-gradient(135deg,#1e1b4b,#4c1d95,#831843)' },
+  { name:'Ночь',   grad:'linear-gradient(135deg,#0f172a,#1e293b,#0f172a)' },
+  { name:'Пламя',  grad:'linear-gradient(135deg,#450a0a,#7c2d12,#1c1917)' },
+  { name:'Лес',    grad:'linear-gradient(135deg,#052e16,#14532d,#052e16)' },
+  { name:'Океан',  grad:'linear-gradient(135deg,#0c4a6e,#0369a1,#082f49)' }
+];
+const BG_IMAGES = [
+  { name:'Космос', url:'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1920&q=80' },
+  { name:'Горы',   url:'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80' },
+  { name:'Туман',  url:'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=80' },
+  { name:'Закат',  url:'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1920&q=80' },
+  { name:'Пики',   url:'https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=1920&q=80' }
+];
+
+/* ============================================================
+   СОСТОЯНИЕ
+   ============================================================ */
+let characters = load();
+let view = { type:'home' };
+let formData = null;
+let levelUpState = null;
+let isMaster = false;        /* режим мастера живёт только в текущей сессии */
+let rollHistory = [];
+
+const main = document.getElementById('main');
+const modalRoot = document.getElementById('modal-root');
+
+/* ============================================================
+   УТИЛИТЫ
+   ============================================================ */
+function esc(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+    ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+function mod(v){ return Math.floor((v - 10) / 2); }
+function fmtMod(m){ return (m >= 0 ? '+' : '') + m; }
+function profBonus(level){ return 2 + Math.floor((level - 1) / 4); }
+function clamp(v, min, max){ v = parseInt(v, 10); if (isNaN(v)) return min; return Math.max(min, Math.min(max, v)); }
+function initial(name){ const n = (name || '').trim(); return n ? n[0].toUpperCase() : '?'; }
+function statShort(k){ return (STATS.find(s => s.k === k) || {}).short || ''; }
+function genCharId(){ return 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+function toast(msg){
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg;
+  document.body.appendChild(t);
+  requestAnimationFrame(() => t.classList.add('show'));
+  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 320); }, 2400);
+}
+function closeModal(){ modalRoot.innerHTML = ''; }
+
+/* ============================================================
+   ХРАНИЛИЩЕ ПЕРСОНАЖЕЙ
+   ============================================================ */
+function normalize(c){
+  c.stats = Object.assign({ str:10, dex:10, con:10, int:10, wis:10, cha:10 }, c.stats || {});
+  /* Приводим сохранённые характеристики к правилам D&D: 1–30 */
+  STATS.forEach(s => { c.stats[s.k] = clamp(c.stats[s.k], STAT_MIN, STAT_MAX); });
+  c.languages = Array.isArray(c.languages) ? c.languages : [];
+  c.equipment = Array.isArray(c.equipment) ? c.equipment : [];
+  c.skills    = Array.isArray(c.skills)    ? c.skills    : [];
+  c.traits    = Array.isArray(c.traits)    ? c.traits    : [];
+  c.level     = clamp(c.level || 1, LEVEL_MIN, LEVEL_MAX);
+  c.klass     = c.klass || c['class'] || 'Воин';
+  c.race      = c.race || 'Человек';
+  c.alignment = c.alignment || 'Нейтральный';
+  c.name      = String(c.name || '');
+  c.gender    = String(c.gender || '');
+  c.appearance = String(c.appearance || '');
+  c.backstory = String(c.backstory || '');
+  return c;
+}
+function load(){
+  try { const raw = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        return Array.isArray(raw) ? raw.map(normalize) : []; }
+  catch(e){ return []; }
+}
+function persist(){
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(characters)); }
+  catch(e){ toast('Не удалось сохранить данные'); }
+}
+
+/* ============================================================
+   ОБМЕН ПЕРСОНАЖАМИ (ФАЙЛ .txt В ОСОБОМ ФОРМАТЕ)
+   Файл — читаемый лист персонажа, внизу машиночитаемая строка
+   кода CH1:... Программа при импорте сама находит эту строку.
+   ============================================================ */
+function encodeChar(c){
+  const json = JSON.stringify(c);
+  const bytes = new TextEncoder().encode(json);
+  let bin = '';
+  bytes.forEach(b => { bin += String.fromCharCode(b); });
+  return EXPORT_PREFIX + btoa(bin);
+}
+/* Ищем строку кода в любом тексте: чистый код, вставка из мессенджера
+   или целый файл-лист персонажа */
+function extractCode(text){
+  const m = String(text || '').match(/CH1:[A-Za-z0-9+/=]+/);
+  if (m) return m[0];
+  return null;
+}
+function decodeChar(raw){
+  let code = String(raw || '').replace(/\s+/g, '');
+  if (code.startsWith(EXPORT_PREFIX)) code = code.slice(EXPORT_PREFIX.length);
+  if (!code) throw new Error('Код не найден');
+  const bin = atob(code);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  const obj = JSON.parse(new TextDecoder().decode(bytes));
+  if (!obj || typeof obj !== 'object' || !obj.stats) throw new Error('В файле нет кода персонажа');
+  return normalize(obj);
+}
+
+/* Особый формат файла: читаемый лист + строка кода в конце */
+function buildCharFile(c){
+  const divider = '══════════════════════════════════════';
+  const stats = STATS.map(s => `  ${s.full} (${s.short}): ${c.stats[s.k]} — модификатор ${fmtMod(mod(c.stats[s.k]))}`).join('\n');
+  const equip = c.equipment.filter(Boolean).map(e => `  • ${e}`).join('\n');
+  const traits = c.traits.filter(t => t.name || t.desc).map(t => `  • ${t.name || 'Без названия'}: ${t.desc || '—'}`).join('\n');
+  return [
+    divider,
+    '      CODEX HEROICA — ЛИСТ ПЕРСОНАЖА',
+    divider,
+    '',
+    `Имя:            ${c.name || 'Безымянный'}`,
+    `Раса:           ${c.race}`,
+    `Пол:            ${c.gender || '—'}`,
+    `Класс:          ${c.klass}`,
+    `Мировоззрение:  ${c.alignment}`,
+    `Уровень:        ${c.level}`,
+    `Мастерство:     +${profBonus(c.level)}`,
+    '',
+    '── ХАРАКТЕРИСТИКИ ────────────────────',
+    stats,
+    '',
+    '── НАВЫКИ ────────────────────────────',
+    c.skills.length ? '  ' + c.skills.join(', ') : '  —',
+    '',
+    '── ЯЗЫКИ ─────────────────────────────',
+    c.languages.length ? '  ' + c.languages.join(', ') : '  —',
+    '',
+    '── СНАРЯЖЕНИЕ ────────────────────────',
+    equip || '  —',
+    '',
+    '── ЧЕРТЫ И УМЕНИЯ ────────────────────',
+    traits || '  —',
+    '',
+    '── ВНЕШНОСТЬ ─────────────────────────',
+    c.appearance ? '  ' + c.appearance.replace(/\n/g, '\n  ') : '  —',
+    '',
+    '── ПРЕДЫСТОРИЯ ───────────────────────',
+    c.backstory ? '  ' + c.backstory.replace(/\n/g, '\n  ') : '  —',
+    '',
+    divider,
+    'КОД ПЕРСОНАЖА ДЛЯ ПЕРЕНОСА',
+    '(эту строку нельзя редактировать — по ней',
+    ' программа считывает персонажа целиком):',
+    '',
+    encodeChar(c),
+    divider
+  ].join('\n');
+}
+function exportCharFile(id){
+  const c = characters.find(x => x.id === id);
+  if (!c) return;
+  const text = buildCharFile(c);
+  const safeName = (c.name || 'Безымянный').replace(/[\\\/:*?"<>|]+/g, '').trim() || 'Персонаж';
+  const blob = new Blob([text], { type:'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Персонаж — ' + safeName + '.txt';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+  toast('Файл сохранён — отправьте его мастеру');
+}
+function importCharModal(){
+  modalRoot.innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this)closeModal()">
+      <div class="modal">
+        <h2 class="modal-title">📥 Принять персонажа</h2>
+        <p class="modal-sub">Загрузите файл «Персонаж — Имя.txt», присланный игроком, —
+           программа сама найдёт в нём код персонажа. Можно и просто вставить код
+           (строка, начинающаяся с ${EXPORT_PREFIX}). Если такой герой уже есть — он обновится.</p>
+        <textarea class="export-code" id="imp-code" placeholder="Вставьте код или содержимое файла..."></textarea>
+        <label class="modal-label" style="margin-top:14px">…или выберите файл</label>
+        <input type="file" id="imp-file" accept=".txt,.json"
+               onchange="handleImportFile(this)"
+               style="color:var(--muted);padding:9px;font-size:13px">
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeModal()">Отмена</button>
+          <button class="btn btn-primary" onclick="doImportChar()">Принять персонажа</button>
+        </div>
+        <div class="auth-status" id="imp-status"></div>
+      </div>
+    </div>`;
+  setTimeout(() => { const el = document.getElementById('imp-code'); if (el) el.focus(); }, 80);
+}
+function importStatus(msg, ok){
+  const el = document.getElementById('imp-status');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'auth-status ' + (ok ? 'ok' : 'err');
+}
+function handleImportFile(input){
+  const file = input.files && input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const ta = document.getElementById('imp-code');
+    if (ta){
+      ta.value = String(e.target.result || '');
+      const found = extractCode(ta.value);
+      if (found) importStatus('Файл прочитан, код найден — нажмите «Принять персонажа»', true);
+      else importStatus('Файл загружен, но код не найден — проверьте, что это файл формата Codex Heroica', false);
+    }
+  };
+  reader.onerror = () => importStatus('Не удалось прочитать файл', false);
+  reader.readAsText(file, 'utf-8');
+}
+function doImportChar(){
+  const ta = document.getElementById('imp-code');
+  if (!ta) return;
+  const raw = ta.value.trim();
+  if (!raw){ importStatus('Вставьте код или загрузите файл', false); return; }
+  const code = extractCode(raw) || raw;
+  try {
+    const c = decodeChar(code);
+    if (!c.name.trim()) c.name = 'Безымянный';
+    if (!c.id) c.id = genCharId();
+    const i = characters.findIndex(x => x.id === c.id);
+    if (i !== -1){
+      characters[i] = Object.assign({}, c, { updatedAt: Date.now() });
+      toast('Персонаж обновлён: ' + c.name);
+    } else {
+      characters.unshift(Object.assign({}, c, { createdAt: Date.now() }));
+      toast('Персонаж принят: ' + c.name);
+    }
+    persist();
+    closeModal();
+    render();
+  } catch(e){
+    importStatus('Ошибка: в тексте нет корректного кода персонажа', false);
+  }
+}
+
+/* ============================================================
+   СПИСКИ (Сюжет/Миры)
+   ============================================================ */
+function loadList(key){
+  try { const a = JSON.parse(localStorage.getItem(key)); return Array.isArray(a) ? a : []; }
+  catch(e){ return []; }
+}
+function saveList(key, arr){ try { localStorage.setItem(key, JSON.stringify(arr)); } catch(e){ toast('Не удалось сохранить'); } }
+
+let storyRecords = loadList(STORY_KEY);
+let worldRecords = loadList(WORLDS_KEY);
+
+function recordsOf(kind){ return kind === 'story' ? storyRecords : worldRecords; }
+function setRecords(kind, arr){
+  if (kind === 'story') storyRecords = arr; else worldRecords = arr;
+  saveList(kind === 'story' ? STORY_KEY : WORLDS_KEY, arr);
+}
+
+/* ============================================================
+   РЕЖИМ МАСТЕРА
+   ============================================================ */
+function getMasterCode(){ try { return localStorage.getItem(DM_CODE_KEY) || ''; } catch(e){ return ''; } }
+function setMasterCode(v){ try { localStorage.setItem(DM_CODE_KEY, v); } catch(e){} }
+
+function openMasterGate(){
+  if (isMaster){ view = { type:'master' }; render(); window.scrollTo({top:0}); return; }
+  closeModal();
+  const saved = getMasterCode();
+  modalRoot.innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this)closeModal()">
+      <div class="modal">
+        <h2 class="modal-title">👑 Режим мастера</h2>
+        <p class="modal-sub">${saved
+          ? 'Введите код мастера, чтобы открыть панель ведущего.'
+          : 'Код мастера ещё не установлен. Придумайте его — он понадобится для входа на этом компьютере. Запишите код в надёжном месте.'}</p>
+        <div class="field"><label>${saved ? 'Код мастера' : 'Придумайте код (минимум 4 символа)'}</label>
+          <input id="dm-code" type="password" autocomplete="off"
+                 onkeydown="if(event.key==='Enter')submitMasterCode()"></div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeModal()">Отмена</button>
+          <button class="btn btn-gold" onclick="submitMasterCode()">${saved ? 'Войти' : 'Установить код'}</button>
+        </div>
+        <div class="auth-status" id="dm-status"></div>
+      </div>
+    </div>`;
+  setTimeout(() => { const el = document.getElementById('dm-code'); if (el) el.focus(); }, 80);
+}
+function dmStatus(msg){
+  const el = document.getElementById('dm-status');
+  if (el) el.textContent = msg;
+}
+function submitMasterCode(){
+  const val = (document.getElementById('dm-code').value || '').trim();
+  const saved = getMasterCode();
+  if (!val){ dmStatus('Введите код'); return; }
+  if (!saved){
+    if (val.length < 4){ dmStatus('Минимум 4 символа'); return; }
+    setMasterCode(val);
+    enterMasterMode();
+    toast('Код мастера установлен');
+    return;
+  }
+  if (val === saved) enterMasterMode();
+  else dmStatus('Неверный код');
+}
+function enterMasterMode(){
+  isMaster = true;
+  closeModal();
+  view = { type:'master' };
+  render(); window.scrollTo({top:0});
+  toast('Режим мастера включён');
+}
+function exitMasterMode(){
+  isMaster = false;
+  view = { type:'home' };
+  render(); window.scrollTo({top:0});
+  toast('Режим мастера выключен');
+}
+function openChangeCodeModal(){
+  closeModal();
+  modalRoot.innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this)closeModal()">
+      <div class="modal">
+        <h2 class="modal-title">🔑 Смена кода мастера</h2>
+        <p class="modal-sub">Новый код должен быть не короче 4 символов. Старый код перестанет действовать.</p>
+        <div class="field"><label>Новый код</label>
+          <input id="dm-new-code" type="password" autocomplete="off"
+                 onkeydown="if(event.key==='Enter')changeMasterCode()"></div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeModal()">Отмена</button>
+          <button class="btn btn-primary" onclick="changeMasterCode()">Сменить код</button>
+        </div>
+      </div>
+    </div>`;
+  setTimeout(() => { const el = document.getElementById('dm-new-code'); if (el) el.focus(); }, 80);
+}
+function changeMasterCode(){
+  const el = document.getElementById('dm-new-code');
+  const val = el ? el.value.trim() : '';
+  if (val.length < 4){ toast('Минимум 4 символа'); return; }
+  setMasterCode(val);
+  closeModal();
+  toast('Код мастера изменён');
+}
+function rollDice(sides){
+  const r = 1 + Math.floor(Math.random() * sides);
+  rollHistory.unshift({ sides, r });
+  rollHistory = rollHistory.slice(0, 12);
+  const el = document.getElementById('roll-result');
+  if (el) el.textContent = 'd' + sides + ' → ' + r;
+  renderRollLog();
+}
+function renderRollLog(){
+  const el = document.getElementById('roll-log');
+  if (!el) return;
+  el.innerHTML = rollHistory.map(x =>
+    `<li><span>d${x.sides}</span><b style="color:var(--gold)">${x.r}</b></li>`).join('');
+}
+
+/* ============================================================
+   ФОН
+   ============================================================ */
+let bgState = (function(){
+  try {
+    const s = JSON.parse(localStorage.getItem(BG_KEY)) || {};
+    return {
+      type: s.type || 'default', value: s.value || '',
+      blur: s.blur != null ? s.blur : 0,
+      dim:  s.dim  != null ? s.dim  : 45
+    };
+  } catch(e){ return { type:'default', value:'', blur:0, dim:45 }; }
+})();
+
+function saveBgState(){ try { localStorage.setItem(BG_KEY, JSON.stringify(bgState)); } catch(e){} }
+
+function applyBg(){
+  const layer = document.getElementById('bg-layer');
+  const dim = document.getElementById('bg-dim');
+  if (!layer || !dim) return;
+
+  document.documentElement.style.setProperty('--bg-blur', bgState.blur + 'px');
+  document.documentElement.style.setProperty('--bg-dim', (bgState.dim / 100).toFixed(2));
+
+  if (bgState.type === 'default' || !bgState.value){
+    document.body.classList.remove('custom-bg');
+    layer.style.backgroundImage = '';
+    layer.style.backgroundColor = '';
+    return;
+  }
+  document.body.classList.add('custom-bg');
+  if (bgState.type === 'color'){
+    layer.style.backgroundImage = 'none';
+    layer.style.backgroundColor = bgState.value;
+  } else if (bgState.type === 'gradient'){
+    layer.style.backgroundImage = bgState.value;
+    layer.style.backgroundColor = '';
+  } else {
+    layer.style.backgroundImage = 'url("' + bgState.value.replace(/"/g, '\\"') + '")';
+    layer.style.backgroundColor = '';
+  }
+}
+function setBgGradientIdx(i){
+  if (!BG_GRADIENTS[i]) return;
+  bgState.type = 'gradient'; bgState.value = BG_GRADIENTS[i].grad;
+  saveBgState(); applyBg(); toast('Фон установлен');
+}
+function setBgImageIdx(i){
+  if (!BG_IMAGES[i]) return;
+  bgState.type = 'url'; bgState.value = BG_IMAGES[i].url;
+  saveBgState(); applyBg(); toast('Фон установлен');
+}
+function applyBgUrl(){
+  const input = document.getElementById('bg-url');
+  if (!input) return;
+  const url = input.value.trim();
+  if (!url){ toast('Введите ссылку'); return; }
+  bgState.type = 'url'; bgState.value = url;
+  saveBgState(); applyBg(); toast('Фон по ссылке установлен');
+}
+function handleBgFile(input){
+  const file = input.files && input.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')){ toast('Выберите изображение'); return; }
+  if (file.size > 4 * 1024 * 1024) toast('Файл больше 4 МБ — может не сохраниться');
+  const reader = new FileReader();
+  reader.onload = e => {
+    bgState.type = 'file'; bgState.value = e.target.result;
+    saveBgState(); applyBg(); toast('Фон загружен');
+  };
+  reader.onerror = () => toast('Ошибка чтения файла');
+  reader.readAsDataURL(file);
+}
+function updateBgBlur(v){
+  bgState.blur = parseInt(v, 10);
+  const el = document.getElementById('bg-blur-val'); if (el) el.textContent = bgState.blur;
+  saveBgState(); applyBg();
+}
+function updateBgDim(v){
+  bgState.dim = parseInt(v, 10);
+  const el = document.getElementById('bg-dim-val'); if (el) el.textContent = bgState.dim;
+  saveBgState(); applyBg();
+}
+function resetBg(){
+  bgState = { type:'default', value:'', blur:0, dim:45 };
+  saveBgState(); applyBg(); openBgSettings(); toast('Фон сброшен');
+}
+function openBgSettings(){
+  modalRoot.innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this)closeModal()">
+      <div class="modal" style="width:min(620px,100%)">
+        <h2 class="modal-title">🎨 Оформление</h2>
+        <p class="modal-sub">Установите фон как обои на телефоне — картинку, цвет или градиент.</p>
+
+        <label class="modal-label">Градиенты</label>
+        <div class="bg-presets">
+          ${BG_GRADIENTS.map((p,i) => `<button class="bg-preset" style="background:${p.grad}" title="${esc(p.name)}" onclick="setBgGradientIdx(${i})"></button>`).join('')}
+        </div>
+
+        <label class="modal-label" style="margin-top:16px">Изображения</label>
+        <div class="bg-presets">
+          ${BG_IMAGES.map((p,i) => `<button class="bg-preset" style="background-image:url('${p.url}')" title="${esc(p.name)}" onclick="setBgImageIdx(${i})"></button>`).join('')}
+        </div>
+
+        <label class="modal-label" style="margin-top:18px">Своя ссылка на картинку</label>
+        <div class="dyn-row">
+          <input id="bg-url" placeholder="https://example.com/image.jpg"
+                 value="${esc(bgState.type === 'url' ? bgState.value : '')}">
+          <button class="btn btn-gold" onclick="applyBgUrl()">OK</button>
+        </div>
+
+        <label class="modal-label" style="margin-top:16px">Загрузить с компьютера</label>
+        <input type="file" id="bg-file" accept="image/*" onchange="handleBgFile(this)"
+               style="color:var(--muted);padding:9px;font-size:13px">
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px">
+          <div>
+            <label class="modal-label">Размытие: <span id="bg-blur-val">${bgState.blur}</span>px</label>
+            <input type="range" min="0" max="20" value="${bgState.blur}"
+                   oninput="updateBgBlur(this.value)" style="width:100%">
+          </div>
+          <div>
+            <label class="modal-label">Затемнение: <span id="bg-dim-val">${bgState.dim}</span>%</label>
+            <input type="range" min="0" max="90" value="${bgState.dim}"
+                   oninput="updateBgDim(this.value)" style="width:100%">
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="resetBg()">Сбросить</button>
+          <button class="btn btn-primary" onclick="closeModal()">Готово</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/* ============================================================
+   НАВИГАЦИЯ
+   ============================================================ */
+function goHome(){ view = { type:'home' }; formData = null; render(); window.scrollTo({top:0}); }
+function goHeroes(){ view = { type:'heroes' }; formData = null; render(); window.scrollTo({top:0}); }
+function goStory(){ view = { type:'story' }; render(); window.scrollTo({top:0}); }
+function goWorlds(){ view = { type:'worlds' }; render(); window.scrollTo({top:0}); }
+function goForm(id){
+  if (id){
+    const c = characters.find(x => x.id === id);
+    if (!c) return;
+    formData = JSON.parse(JSON.stringify(c));
+  } else {
+    formData = blankCharacter();
+  }
+  view = { type:'form' }; render(); window.scrollTo({top:0});
+}
+function goView(id){ view = { type:'char', id }; render(); window.scrollTo({top:0}); }
+function cancelForm(){
+  if (formData && formData.id) view = { type:'char', id: formData.id };
+  else view = { type:'heroes' };
+  formData = null; render();
+}
+
+function blankCharacter(){
+  return {
+    id:null, name:'', race:'Человек', gender:'', klass:'Воин', alignment:'Нейтральный',
+    level:1, appearance:'', backstory:'',
+    stats:{ str:10, dex:10, con:10, int:10, wis:10, cha:10 },
+    languages:[], equipment:[], skills:[], traits:[]
+  };
+}
+
+/* ============================================================
+   РЕНДЕР
+   ============================================================ */
+function updateDmBadge(){
+  const el = document.getElementById('dm-badge');
+  if (el) el.style.display = isMaster ? 'inline-flex' : 'none';
+}
+
+function render(){
+  if (view.type === 'home') main.innerHTML = viewHome();
+  else if (view.type === 'heroes') main.innerHTML = viewHeroes();
+  else if (view.type === 'story') main.innerHTML = viewStory();
+  else if (view.type === 'worlds') main.innerHTML = viewWorlds();
+  else if (view.type === 'master'){
+    if (!isMaster){ view = { type:'home' }; main.innerHTML = viewHome(); updateDmBadge(); return; }
+    main.innerHTML = viewMaster();
+  }
+  else if (view.type === 'form'){
+    main.innerHTML = viewForm();
+    renderEquipList(); renderTraitList();
+  }
+  else if (view.type === 'char'){
+    const c = characters.find(x => x.id === view.id);
+    if (!c){ view = { type:'home' }; main.innerHTML = viewHome(); updateDmBadge(); return; }
+    main.innerHTML = viewChar(c);
+  }
+  updateDmBadge();
+}
+
+function viewHome(){
+  return `
+    <section class="game-menu">
+      <h1 class="menu-title">Codex Heroica</h1>
+      <p class="menu-sub">Dungeons &amp; Dragons</p>
+      <div class="menu-list">
+        <button class="menu-item" onclick="goForm()">
+          <span class="mi-icon">⚔</span>
+          <span>Создать героя<span class="mi-desc">Новый персонаж для приключений</span></span>
+          <span class="mi-arrow">›</span>
+        </button>
+        <button class="menu-item" onclick="goHeroes()">
+          <span class="mi-icon">👥</span>
+          <span>Мои герои<span class="mi-desc">Список созданных персонажей</span></span>
+          <span class="mi-arrow">›</span>
+        </button>
+        <button class="menu-item" onclick="goStory()">
+          <span class="mi-icon">📜</span>
+          <span>Сюжет<span class="mi-desc">История кампании и события</span></span>
+          <span class="mi-arrow">›</span>
+        </button>
+        <button class="menu-item" onclick="goWorlds()">
+          <span class="mi-icon">🌍</span>
+          <span>Миры<span class="mi-desc">Локации, королевства, вселенные</span></span>
+          <span class="mi-arrow">›</span>
+        </button>
+        <button class="menu-item" onclick="openMasterGate()">
+          <span class="mi-icon">👑</span>
+          <span>Режим мастера<span class="mi-desc">Панель ведущего — вход по коду</span></span>
+          <span class="mi-arrow">›</span>
+        </button>
+      </div>
+      <p class="menu-footer">Выберите пункт, чтобы начать</p>
+    </section>`;
+}
+
+function viewHeroes(){
+  const cards = characters.length
+    ? characters.map(cardHTML).join('')
+    : `<div class="empty">
+         <p class="empty-emoji">📜</p>
+         <p class="empty-note">Пока нет ни одного героя. Создайте первого!</p>
+       </div>`;
+  return `
+    <div class="page-head">
+      <button class="btn btn-ghost" onclick="goHome()">← Меню</button>
+      <h1 class="page-title">Мои герои</h1>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn" onclick="importCharModal()">📥 Принять персонажа</button>
+        <button class="btn btn-primary" onclick="goForm()">＋ Новый герой</button>
+      </div>
+    </div>
+    <div class="grid">${cards}</div>`;
+}
+
+function cardHTML(c){
+  const mini = STATS.map(s =>
+    `<div class="mini-stat"><b>${c.stats[s.k]}</b><span>${s.short}</span></div>`).join('');
+  return `
+    <article class="char-card" onclick="goView('${c.id}')">
+      <div class="card-top">
+        <div class="avatar">${esc(initial(c.name))}</div>
+        <div class="card-info">
+          <h3>${esc(c.name) || 'Безымянный'}</h3>
+          <p>${esc(c.race)} · ${esc(c.klass)} · ур. ${c.level}</p>
+        </div>
+        <div class="card-actions">
+          <button class="icon-btn" title="Отправить персонажа (файл)" onclick="event.stopPropagation();exportCharFile('${c.id}')">📤</button>
+          <button class="icon-btn" title="Редактировать" onclick="event.stopPropagation();goForm('${c.id}')">✎</button>
+          <button class="icon-btn danger" title="Удалить" onclick="event.stopPropagation();deleteChar('${c.id}')">✕</button>
+        </div>
+      </div>
+      <div class="mini-stats">${mini}</div>
+    </article>`;
+}
+
+/* ---------- ПАНЕЛЬ МАСТЕРА ---------- */
+function viewMaster(){
+  const rows = characters.length
+    ? characters.map(c => `
+        <tr onclick="goView('${c.id}')" title="Открыть персонажа">
+          <td style="color:var(--gold);font-weight:600">${esc(c.name) || 'Безымянный'}</td>
+          <td>${esc(c.race)}</td>
+          <td>${esc(c.klass)}</td>
+          <td>${c.level}</td>
+          <td>${STATS.map(s => c.stats[s.k]).join(' · ')}</td>
+        </tr>`).join('')
+    : `<tr><td colspan="5" class="empty-note" style="text-align:center;padding:22px">Героев пока нет — примите файлы игроков или создайте вручную</td></tr>`;
+  const dice = [4,6,8,10,12,20,100].map(s =>
+    `<button class="dice-btn" onclick="rollDice(${s})">d${s}</button>`).join('');
+  return `
+    <div class="page-head">
+      <button class="btn btn-ghost" onclick="goHome()">← Меню</button>
+      <h1 class="page-title">👑 Панель мастера</h1>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="importCharModal()">📥 Принять персонажа</button>
+        <button class="btn btn-primary" onclick="goForm()">＋ Новый герой</button>
+        <button class="btn" onclick="openChangeCodeModal()">🔑 Сменить код</button>
+        <button class="btn btn-gold" onclick="exitMasterMode()">Выйти из режима</button>
+      </div>
+    </div>
+    <div class="form-grid">
+      <section class="section">
+        <h2>Герои на этом компьютере</h2>
+        <div style="overflow-x:auto">
+          <table class="dm-table">
+            <thead><tr><th>Имя</th><th>Раса</th><th>Класс</th><th>Ур.</th><th>Характеристики</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+        <p class="empty-note" style="margin-top:12px">Игроки нажимают «📤 Отправить персонажа» на листе героя — присылают вам файл .txt. Загрузите его через «📥 Принять персонажа»: программа сама найдёт в файле код и добавит героя. Повторный файл того же героя обновит его данные.</p>
+      </section>
+      <section class="section">
+        <h2>Кубики</h2>
+        <div class="dice-grid">${dice}</div>
+        <div class="roll-result" id="roll-result">—</div>
+        <ul class="roll-log" id="roll-log"></ul>
+      </section>
+    </div>`;
+}
+
+/* ---------- ФОРМА ---------- */
+function options(arr, cur){
+  return arr.map(o => `<option value="${esc(o)}"${o === cur ? ' selected' : ''}>${esc(o)}</option>`).join('');
+}
+
+function viewForm(){
+  const f = formData;
+  const isEdit = !!f.id;
+  /* Ползунки вместо числовых полей: физически невозможно выйти за диапазон */
+  const statInputs = STATS.map(s => `
+    <div class="stat-input">
+      <label>${s.full}</label>
+      <div class="stat-val" id="stat-val-${s.k}">${f.stats[s.k]}</div>
+      <div class="mod" id="stat-mod-${s.k}">${fmtMod(mod(f.stats[s.k]))}</div>
+      <input type="range" min="${STAT_MIN}" max="${STAT_MAX}" step="1"
+             value="${f.stats[s.k]}" oninput="setStatRange('${s.k}', this)"
+             title="От ${STAT_MIN} до ${STAT_MAX} (лимит D&D)">
+    </div>`).join('');
+  const skillList = SKILLS.map(sk => `
+    <label class="skill">
+      <input type="checkbox" ${f.skills.includes(sk.n) ? 'checked' : ''}
+             onchange="toggleSkill('${sk.n}', this.checked)">
+      <span>${sk.n}</span>
+      <span class="sk-stat">${statShort(sk.s)}</span>
+    </label>`).join('');
+
+  return `
+    <div class="page-head">
+      <button class="btn btn-ghost" onclick="cancelForm()">← Назад</button>
+      <h1 class="page-title">${isEdit ? 'Редактирование героя' : 'Новый герой'}</h1>
+    </div>
+    <div class="form-grid">
+      <section class="section">
+        <h2>Личность</h2>
+        <div class="fields">
+          <div class="field"><label>Имя</label>
+            <input value="${esc(f.name)}" oninput="formData.name=this.value" placeholder="Талион Ветрокрылый"></div>
+          <div class="field"><label>Раса</label>
+            <select onchange="formData.race=this.value">${options(RACES, f.race)}</select></div>
+          <div class="field"><label>Пол</label>
+            <input value="${esc(f.gender)}" oninput="formData.gender=this.value" placeholder="Мужской / Женский / ..."></div>
+          <div class="field"><label>Класс</label>
+            <select onchange="formData.klass=this.value">${options(CLASSES, f.klass)}</select></div>
+          <div class="field"><label>Мировоззрение</label>
+            <select onchange="formData.alignment=this.value">${options(ALIGNMENTS, f.alignment)}</select></div>
+          <div class="field"><label>Уровень</label>
+            <div class="lvl-field-wrap">
+              <div class="lvl-head">
+                <span class="lvl-name">Уровень</span>
+                <span class="lvl-num" id="lvl-val">${f.level}</span>
+              </div>
+              <input type="range" min="${LEVEL_MIN}" max="${LEVEL_MAX}" step="1"
+                     value="${f.level}" oninput="setLevel(this)">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Характеристики</h2>
+        <div class="stats-grid">${statInputs}</div>
+      </section>
+
+      <section class="section">
+        <h2>Внешность</h2>
+        <div class="field">
+          <label>Описание внешности</label>
+          <textarea oninput="formData.appearance=this.value" placeholder="Рост, телосложение, глаза, волосы, шрамы, одежда...">${esc(f.appearance)}</textarea>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Предыстория</h2>
+        <div class="field">
+          <textarea style="min-height:160px" oninput="formData.backstory=this.value" placeholder="Откуда герой? Кем был до приключений?">${esc(f.backstory)}</textarea>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Языки</h2>
+        <div class="field">
+          <label>Перечислите через запятую</label>
+          <input value="${esc(f.languages.join(', '))}"
+                 oninput="formData.languages=this.value.split(',').map(s=>s.trim()).filter(Boolean)"
+                 placeholder="Общий, Эльфийский, Драконий...">
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Навыки</h2>
+        <div class="skills-grid">${skillList}</div>
+      </section>
+
+      <section class="section">
+        <h2>Снаряжение</h2>
+        <div id="equip-list"></div>
+        <button class="add-btn" type="button" onclick="addEquip()">＋ Добавить предмет</button>
+      </section>
+
+      <section class="section">
+        <h2>Черты и умения</h2>
+        <div id="trait-list"></div>
+        <button class="add-btn" type="button" onclick="addTrait()">＋ Добавить черту</button>
+      </section>
+
+      <div class="form-actions">
+        <button class="btn btn-ghost" onclick="cancelForm()">Отмена</button>
+        <button class="btn btn-primary" onclick="saveCharacter()">${isEdit ? 'Сохранить изменения' : 'Создать персонажа'}</button>
+      </div>
+    </div>`;
+}
+
+/* ---------- ЛИСТ ПЕРСОНАЖА ---------- */
+function viewChar(c){
+  const stats = STATS.map(s => `
+    <div class="stat-hex">
+      <div class="lbl">${s.short}</div>
+      <div class="val">${c.stats[s.k]}</div>
+      <div class="md">${fmtMod(mod(c.stats[s.k]))}</div>
+    </div>`).join('');
+  const skills = c.skills.length
+    ? `<div class="chips">${c.skills.map(s => `<span class="chip">${esc(s)}</span>`).join('')}</div>`
+    : `<p class="empty-note">Навыки не выбраны</p>`;
+  const langs = c.languages.length
+    ? `<div class="chips">${c.languages.map(l => `<span class="chip gold">${esc(l)}</span>`).join('')}</div>`
+    : `<p class="empty-note">Языки не указаны</p>`;
+  const equipItems = c.equipment.filter(Boolean);
+  const equip = equipItems.length
+    ? `<ul class="equip-list">${equipItems.map(e => `<li>${esc(e)}</li>`).join('')}</ul>`
+    : `<p class="empty-note">Снаряжение не указано</p>`;
+  const traits = c.traits.length
+    ? c.traits.map(t => `
+        <div class="trait-card">
+          <h4>${esc(t.name) || 'Без названия'}</h4>
+          <p class="prose">${esc(t.desc) || '—'}</p>
+        </div>`).join('')
+    : `<p class="empty-note">Черты не добавлены</p>`;
+
+  return `
+    <div class="page-head">
+      <button class="btn btn-ghost" onclick="${isMaster ? "view={type:'master'};render()" : 'goHeroes()'}">← ${isMaster ? 'Панель мастера' : 'Все герои'}</button>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn" onclick="goForm('${c.id}')">✎ Редактировать</button>
+        <button class="btn" onclick="exportCharFile('${c.id}')">📤 Отправить персонажа</button>
+        <button class="btn btn-gold" onclick="openLevelUp('${c.id}')">↑ Повысить уровень</button>
+      </div>
+    </div>
+
+    <div class="char-header">
+      <div class="avatar">${esc(initial(c.name))}</div>
+      <div style="flex:1;min-width:0">
+        <h1>${esc(c.name) || 'Безымянный'}</h1>
+        <div class="char-meta">
+          <span class="chip">${esc(c.race)}</span>
+          ${c.gender ? `<span class="chip">${esc(c.gender)}</span>` : ''}
+          <span class="chip">${esc(c.klass)}</span>
+          <span class="chip gold">Уровень ${c.level}</span>
+          <span class="chip">${esc(c.alignment)}</span>
+          <span class="chip">Мастерство +${profBonus(c.level)}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <section class="section"><h2>Характеристики</h2><div class="stat-display">${stats}</div></section>
+      <section class="section"><h2>Внешность</h2>${c.appearance ? `<p class="prose">${esc(c.appearance)}</p>` : `<p class="empty-note">Не описана</p>`}</section>
+      <section class="section"><h2>Предыстория</h2>${c.backstory ? `<p class="prose">${esc(c.backstory)}</p>` : `<p class="empty-note">Не заполнена</p>`}</section>
+      <section class="section"><h2>Языки</h2>${langs}</section>
+      <section class="section"><h2>Навыки</h2>${skills}</section>
+      <section class="section"><h2>Снаряжение</h2>${equip}</section>
+      <section class="section"><h2>Черты и умения</h2>${traits}</section>
+    </div>`;
+}
+
+/* ---------- ОБРАБОТЧИКИ ФОРМЫ ---------- */
+/* Слайдер характеристики: значение всегда в диапазоне 1–30 по определению */
+function setStatRange(k, el){
+  const val = clamp(el.value, STAT_MIN, STAT_MAX);
+  formData.stats[k] = val;
+  const valEl = document.getElementById('stat-val-' + k);
+  const modEl = document.getElementById('stat-mod-' + k);
+  if (valEl) valEl.textContent = val;
+  if (modEl) modEl.textContent = fmtMod(mod(val));
+}
+/* Слайдер уровня: всегда 1–20 */
+function setLevel(el){
+  formData.level = clamp(el.value, LEVEL_MIN, LEVEL_MAX);
+  const lvlEl = document.getElementById('lvl-val');
+  if (lvlEl) lvlEl.textContent = formData.level;
+}
+function toggleSkill(name, on){
+  if (on){ if (!formData.skills.includes(name)) formData.skills.push(name); }
+  else formData.skills = formData.skills.filter(x => x !== name);
+}
+function addEquip(){
+  formData.equipment.push(''); renderEquipList();
+  const inputs = document.querySelectorAll('#equip-list input');
+  if (inputs.length) inputs[inputs.length - 1].focus();
+}
+function removeEquip(i){ formData.equipment.splice(i, 1); renderEquipList(); }
+function renderEquipList(){
+  const el = document.getElementById('equip-list'); if (!el) return;
+  el.innerHTML = formData.equipment.map((e, i) => `
+    <div class="dyn-row">
+      <input value="${esc(e)}" oninput="formData.equipment[${i}]=this.value" placeholder="Меч, верёвка, зелье...">
+      <button class="icon-btn danger" type="button" onclick="removeEquip(${i})">✕</button>
+    </div>`).join('');
+}
+function addTrait(){
+  formData.traits.push({ name:'', desc:'' }); renderTraitList();
+  const inputs = document.querySelectorAll('#trait-list .head input');
+  if (inputs.length) inputs[inputs.length - 1].focus();
+}
+function removeTrait(i){ formData.traits.splice(i, 1); renderTraitList(); }
+function renderTraitList(){
+  const el = document.getElementById('trait-list'); if (!el) return;
+  el.innerHTML = formData.traits.map((t, i) => `
+    <div class="trait-block">
+      <div class="head">
+        <input value="${esc(t.name)}" oninput="formData.traits[${i}].name=this.value" placeholder="Название черты">
+        <button class="icon-btn danger" type="button" onclick="removeTrait(${i})">✕</button>
+      </div>
+      <textarea oninput="formData.traits[${i}].desc=this.value" placeholder="Что даёт эта черта?">${esc(t.desc)}</textarea>
+    </div>`).join('');
+}
+/* Страховка перед сохранением: слайдеры уже не дадут выйти за диапазон,
+   но clamp защищает от значений, пришедших из старых сохранений */
+function saveCharacter(){
+  if (!formData.name.trim()){ toast('Введите имя персонажа'); return; }
+  STATS.forEach(s => {
+    formData.stats[s.k] = clamp(formData.stats[s.k], STAT_MIN, STAT_MAX);
+  });
+  formData.level = clamp(formData.level, LEVEL_MIN, LEVEL_MAX);
+  if (formData.id){
+    const i = characters.findIndex(c => c.id === formData.id);
+    if (i !== -1) characters[i] = Object.assign({}, formData, { updatedAt: Date.now() });
+  } else {
+    formData.id = genCharId();
+    characters.unshift(Object.assign({}, formData, { createdAt: Date.now() }));
+  }
+  persist();
+  const id = formData.id; formData = null;
+  view = isMaster ? { type:'master' } : { type:'char', id };
+  render(); window.scrollTo({top:0});
+  toast('Персонаж сохранён');
+}
+function deleteChar(id){
+  const c = characters.find(x => x.id === id);
+  if (!c) return;
+  if (!confirm(`Удалить персонажа «${c.name || 'Безымянный'}»?`)) return;
+  characters = characters.filter(x => x.id !== id);
+  persist();
+  if (view.type === 'char' && view.id === id){
+    view = isMaster ? { type:'master' } : { type:'heroes' };
+  }
+  render(); toast('Персонаж удалён');
+}
+
+/* ---------- ПОВЫШЕНИЕ УРОВНЯ ---------- */
+function openLevelUp(id){
+  const c = characters.find(x => x.id === id);
+  if (!c) return;
+  if (c.level >= LEVEL_MAX){ toast('Достигнут максимальный уровень (' + LEVEL_MAX + ')'); return; }
+  levelUpState = { id, stat:null };
+  modalRoot.innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this)closeLevelUp()">
+      <div class="modal">
+        <h2 class="modal-title">Повышение уровня</h2>
+        <p class="modal-sub">${esc(c.name) || 'Безымянный'} · уровень ${c.level} → ${c.level + 1}</p>
+        <label class="modal-label">Выберите характеристику (+1)</label>
+        <div class="lvl-stats">
+          ${STATS.map(s => `
+            <button class="lvl-stat" data-k="${s.k}"
+                    ${c.stats[s.k] >= STAT_MAX ? 'disabled title="Максимум ' + STAT_MAX + '" style="opacity:.4;cursor:not-allowed"' : ''}
+                    onclick="pickStat('${s.k}')">
+              <b>${s.short}</b><span>${c.stats[s.k]}</span>
+            </button>`).join('')}
+        </div>
+        <label class="modal-label">Новая черта (необязательно)</label>
+        <input id="lvl-trait-name" placeholder="Название черты" style="margin-bottom:8px">
+        <textarea id="lvl-trait-desc" placeholder="Описание" style="min-height:70px"></textarea>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeLevelUp()">Отмена</button>
+          <button class="btn btn-primary" onclick="confirmLevelUp()">Повысить</button>
+        </div>
+      </div>
+    </div>`;
+}
+function pickStat(k){
+  if (!levelUpState) return;
+  levelUpState.stat = k;
+  document.querySelectorAll('.lvl-stat').forEach(b => b.classList.toggle('selected', b.dataset.k === k));
+}
+function closeLevelUp(){ modalRoot.innerHTML = ''; levelUpState = null; }
+function confirmLevelUp(){
+  if (!levelUpState) return;
+  if (!levelUpState.stat){ toast('Выберите характеристику'); return; }
+  const c = characters.find(x => x.id === levelUpState.id);
+  if (!c){ closeLevelUp(); return; }
+  const before = c.stats[levelUpState.stat];
+  c.stats[levelUpState.stat] = Math.min(STAT_MAX, before + 1);
+  if (before >= STAT_MAX) toast('Достигнут максимум характеристики (' + STAT_MAX + ')');
+  c.level += 1;
+  const nameEl = document.getElementById('lvl-trait-name');
+  const descEl = document.getElementById('lvl-trait-desc');
+  const tName = nameEl ? nameEl.value.trim() : '';
+  const tDesc = descEl ? descEl.value.trim() : '';
+  if (tName || tDesc) c.traits.push({ name:tName, desc:tDesc });
+  persist(); closeLevelUp(); render();
+  toast(`${c.name || 'Герой'} достиг ${c.level} уровня!`);
+}
+
+/* ============================================================
+   СЮЖЕТ И МИРЫ
+   ============================================================ */
+function viewStory(){
+  return viewRecordsPage('story', '📜', 'Сюжет',
+    'Записывайте ход кампании, важные события, повороты истории и открытые тайны.',
+    'Новая запись', 'Сюжетных записей пока нет');
+}
+function viewWorlds(){
+  return viewRecordsPage('worlds', '🌍', 'Миры',
+    'Описывайте королевства, города, локации, пантеоны и целые вселенные вашей игры.',
+    'Новый мир', 'Миров пока нет');
+}
+function viewRecordsPage(kind, icon, title, subtitle, addLabel, emptyText){
+  const arr = recordsOf(kind);
+  const items = arr.length
+    ? arr.map(r => `
+        <div class="record-card">
+          <div class="rc-actions">
+            <button class="icon-btn" title="Редактировать" onclick="openRecordEditor('${kind}','${r.id}')">✎</button>
+            <button class="icon-btn danger" title="Удалить" onclick="deleteRecord('${kind}','${r.id}')">✕</button>
+          </div>
+          <h3>${esc(r.title) || 'Без названия'}</h3>
+          <p>${esc((r.text || '').slice(0, 220))}${(r.text || '').length > 220 ? '…' : ''}</p>
+          <div class="record-date">${new Date(r.updatedAt || r.createdAt).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'})}</div>
+        </div>`).join('')
+    : `<div class="empty" style="grid-column:1/-1">
+         <p class="empty-emoji">${icon}</p>
+         <p class="empty-note">${emptyText}</p>
+       </div>`;
+  return `
+    <div class="page-head">
+      <button class="btn btn-ghost" onclick="goHome()">← Меню</button>
+      <h1 class="page-title">${icon} ${title}</h1>
+      <button class="btn btn-primary" onclick="openRecordEditor('${kind}')">＋ ${addLabel}</button>
+    </div>
+    <p style="color:var(--muted);font-size:14px;line-height:1.6;margin:-10px 0 24px;max-width:680px">${subtitle}</p>
+    <div class="record-grid">${items}</div>`;
+}
+function openRecordEditor(kind, id){
+  const arr = recordsOf(kind);
+  const rec = id ? arr.find(r => r.id === id) : { title:'', text:'' };
+  if (!rec) return;
+  const isStory = kind === 'story';
+  modalRoot.innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this)closeModal()">
+      <div class="modal" style="width:min(640px,100%)">
+        <h2 class="modal-title">${id ? 'Редактирование' : (isStory ? 'Новая запись сюжета' : 'Новый мир')}</h2>
+        <p class="modal-sub">${isStory
+          ? 'События, ход кампании, важные повороты и тайны.'
+          : 'Название мира, его география, фракции, обычаи.'}</p>
+        <div class="fields" style="gap:14px">
+          <div class="field">
+            <label>Название</label>
+            <input id="rec-title" value="${esc(rec.title)}"
+                   placeholder="${isStory ? 'Падение Северной цитадели' : 'Королевство Вал’Дорен'}">
+          </div>
+          <div class="field">
+            <label>Описание</label>
+            <textarea id="rec-text" style="min-height:190px"
+              placeholder="${isStory ? 'Что произошло, кто участвовал, чем закончилось...' : 'География, климат, правители, фракции...'}">${esc(rec.text)}</textarea>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" onclick="closeModal()">Отмена</button>
+          <button class="btn btn-primary" onclick="saveRecord('${kind}','${id || ''}')">Сохранить</button>
+        </div>
+      </div>
+    </div>`;
+  setTimeout(() => { const t = document.getElementById('rec-title'); if (t) t.focus(); }, 60);
+}
+function saveRecord(kind, id){
+  const title = (document.getElementById('rec-title').value || '').trim();
+  const text  = (document.getElementById('rec-text').value  || '').trim();
+  if (!title && !text){ toast('Заполните хотя бы название или описание'); return; }
+  const arr = recordsOf(kind);
+  if (id){
+    const i = arr.findIndex(r => r.id === id);
+    if (i !== -1) arr[i] = Object.assign({}, arr[i], { title, text, updatedAt: Date.now() });
+  } else {
+    arr.unshift({ id:'r' + Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+                  title, text, createdAt: Date.now() });
+  }
+  setRecords(kind, arr); closeModal(); render(); toast('Сохранено');
+}
+function deleteRecord(kind, id){
+  const arr = recordsOf(kind);
+  const rec = arr.find(r => r.id === id);
+  if (!rec) return;
+  if (!confirm(`Удалить «${rec.title || 'Без названия'}»?`)) return;
+  setRecords(kind, arr.filter(r => r.id !== id));
+  render(); toast('Удалено');
+}
+
+/* ============================================================
+   КЛАВИАТУРА
+   ============================================================ */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape'){
+    if (document.querySelector('.modal-overlay')){ closeModal(); return; }
+  }
+});
+
+/* ============================================================
+   СТАРТ
+   ============================================================ */
+applyBg();
+render();
+</script>
+</body>
+</html>
