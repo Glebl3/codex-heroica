@@ -400,10 +400,9 @@ const STATS = [
   { k:'cha', short:'ХАР', full:'Харизма' }
 ];
 
-/* Лимиты характеристик по правилам D&D 5e:
-   обычный потолок — 20, максимум с магией и чертами — 30 */
+/* Лимиты характеристик: от 1 до 1000 (по запросу) */
 const STAT_MIN = 1;
-const STAT_MAX = 30;
+const STAT_MAX = 1000;
 const LEVEL_MIN = 1;
 const LEVEL_MAX = 20;
 
@@ -477,7 +476,7 @@ function closeModal(){ modalRoot.innerHTML = ''; }
    ============================================================ */
 function normalize(c){
   c.stats = Object.assign({ str:10, dex:10, con:10, int:10, wis:10, cha:10 }, c.stats || {});
-  /* Приводим сохранённые характеристики к правилам D&D: 1–30 */
+  /* Приводим сохранённые характеристики к допустимому диапазону */
   STATS.forEach(s => { c.stats[s.k] = clamp(c.stats[s.k], STAT_MIN, STAT_MAX); });
   c.languages = Array.isArray(c.languages) ? c.languages : [];
   c.equipment = Array.isArray(c.equipment) ? c.equipment : [];
@@ -1123,7 +1122,7 @@ function viewForm(){
       <div class="mod" id="stat-mod-${s.k}">${fmtMod(mod(f.stats[s.k]))}</div>
       <input type="range" min="${STAT_MIN}" max="${STAT_MAX}" step="1"
              value="${f.stats[s.k]}" oninput="setStatRange('${s.k}', this)"
-             title="От ${STAT_MIN} до ${STAT_MAX} (лимит D&D)">
+             title="От ${STAT_MIN} до ${STAT_MAX}">
     </div>`).join('');
   const skillList = SKILLS.map(sk => `
     <label class="skill">
@@ -1282,7 +1281,7 @@ function viewChar(c){
 }
 
 /* ---------- ОБРАБОТЧИКИ ФОРМЫ ---------- */
-/* Слайдер характеристики: значение всегда в диапазоне 1–30 по определению */
+/* Слайдер характеристики: значение всегда в диапазоне 1–1000 */
 function setStatRange(k, el){
   const val = clamp(el.value, STAT_MIN, STAT_MAX);
   formData.stats[k] = val;
